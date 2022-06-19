@@ -12,13 +12,14 @@ def loadTrs():
     return data
 
 def saveMarca(i):
+    #Carrega a tabela
     data = loadTrs()
 
-    celula = data[i]
+    #Localiza a tupla do alimento
+    tupla = data[i]
 
-    marca = celula.find_all('td')[5].text
-
-    print(marca)
+    #Localiza a célula correspondente à marca
+    marca = tupla.find_all('td')[5].text
 
     return marca
 
@@ -35,8 +36,6 @@ def saveIds():
         i = d.find_all("td")[0].find("a")
         ids.append(i.text)
 
-    print(ids)
-
     return ids    
 
 def saveTitle():
@@ -50,8 +49,6 @@ def saveTitle():
     for d in data:
         t = d.find_all("td")[1].find("a")
         titles.append(t.text)
-
-    print(titles)
 
     return titles
 
@@ -73,8 +70,21 @@ def measuresNcompon():
     
     #Salva todos as unidades de medida e componentes
     for celula in tabela:
-        unidade.append(celula.find_all('td')[1].get_text())
-        componente.append(celula.find_all('td')[0].get_text())
+        unid = celula.find_all('td')[1].get_text()
+        comp = celula.find_all('td')[0].get_text()
+        
+        '''
+        Confere se o componente já consta na lista 
+        [True] Adiciona a unidade para complementar o nome.
+        [False] Ignora.
+        '''
+
+        if componente.count(comp) > 0:
+            comp += f' ({unid})'
+        
+        #Adiciona a unidade e o componente recuperados em seus dicionários
+        unidade.append(unid)
+        componente.append(comp)
 
     return unidade, componente
 
@@ -102,11 +112,59 @@ def saveInfoTr():
     return v
 
 def evalNextPage():
-    nextPageBtn = driver.find_element_by_link_text("próxima »")
-    
-    if nextPageBtn.is_displayed():
-        nextPageBtn.click()
-    else:
+    prox = True
+
+    print("Verificando a existência de uma próxima página...")
+    try:
+        nextPageBtn = driver.find_element_by_link_text("próxima »")
+        print("Existe uma próxima página.")
+    except:
+        print("Esta é a última página.")
         prox = False
-        for k, v in alimentos.items():
-            print(f'{k}: {v}')
+    else:
+        nextPageBtn.click()
+        print("Redirecionando para a próxima página...")
+    finally:
+        return prox
+
+def getList(dict):
+    list = []
+    for key in dict.keys():
+        if key != 'Unidades' and key != 'Componentes':
+            list.append(key)
+
+    return list
+
+def insert(alimentos):
+
+    #Inicializa o controlador de quantidade de iterações
+    lc = len(alimentos['Componentes'])
+    #Lista com o nome de todos os alimentos, para recuperação das informações no dicionário e inserção na tabela.
+    alimento = getList(alimentos)
+    la = len(alimento)
+
+    #Inicialização das strings
+    q = ""
+    v = ""
+
+    for y in range(la):
+        #Alimento da vez
+        a = alimento[y]
+        for x in range(lc):
+            dado = alimentos[a][x]
+
+            if dado == -1:
+                dado = None
+
+            if x == 0:
+                q = f"INSERT INTO alimentos(Nome, {alimentos['Componentes'][x]}, "
+                v = f"('{a}', "
+            elif x == lc - 1:
+                q += f"{alimentos['Componentes'][x]}) VALUES"
+                v += f"{dado});"
+            else:
+                q += f"{alimentos['Componentes'][x]}, "
+                v += f"{dado}, "
+
+        #Monta a expressão de inserção
+        ins = q + v

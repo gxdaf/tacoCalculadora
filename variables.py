@@ -7,7 +7,6 @@ from selenium.webdriver.support.select import Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-from dbsql import cr_tab, drop_tab, ins_tab
 
 '''
 Definições Selenium
@@ -20,6 +19,5 @@ url = "http://www.tbca.net.br/base-dados/composicao_alimentos.php"
 '''
 Definições built-in
 '''
-prox = True
 #Inicializa as listas de unidades de medida e componentes
 unidade, componente = [], []
