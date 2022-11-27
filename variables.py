@@ -12,7 +12,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 Definições Selenium
 '''
 option = Options()
-#option.headless = True
+option.headless = True
 driver = webdriver.Firefox(options=option)
 url = "http://www.tbca.net.br/base-dados/composicao_alimentos.php"
 

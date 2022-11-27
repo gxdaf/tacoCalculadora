@@ -25,10 +25,10 @@ def collect():
         titulos = saveTitle()
 
         #Salva os Ids dos alimentos da página atual
-        ids = saveIds()
-        
-        for i in range(1):
+        ids = saveIds() 
 
+        for i in range(len(ids)):
+            
             #Atribui o nome do alimento sendo visualizado como seu título
             titulo = titulos[i]
 
@@ -41,23 +41,31 @@ def collect():
                 marca = saveMarca(i)
                 titulo += f' ({marca})'
 
+            print(f'Salvando dados sobre: {titulo}...')
+        
             #Clica no alimento
             clickId(ids[i])
             
-            '''
-            Verifica se é a primeira iteração.
-            [True] Salva as unidades de medida e os componentes em suas respectivas chaves.
-            [False] Ignora e somente salva os alimentos e seus valores em 100g.
-            ''' 
-            if i == 0:
-                u, c = measuresNcompon()
-                alimentos.update({'Unidades': u, 'Componentes':c})
+            tabelaPopulada = checkForValues()
 
-            #Informações nutricionais do alimento sendo visualizado
-            nutricInfo = saveInfoTr()
+            if tabelaPopulada != False:
 
-            #Salva o alimento (nome e informações) no dicionário
-            alimentos.update({titulo: nutricInfo})
+                '''
+                Verifica se as listas estão vazias.
+                [True] Salva as unidades de medida e os componentes em suas respectivas chaves.
+                [False] Ignora e somente salva os alimentos e seus valores em 100g.
+                ''' 
+                if len(unidade) == 0 and len(componente) == 0:
+                    u, c = measuresNcompon()
+                    alimentos.update({'Unidades': u, 'Componentes':c})
+
+                #Informações nutricionais do alimento sendo visualizado
+                nutricInfo = saveInfoTr()
+
+                #Salva o alimento (nome e informações) no dicionário
+                alimentos.update({titulo: nutricInfo})
+
+                print("Informações salvas.")
 
             #print(alimentos)
             driver.back()
